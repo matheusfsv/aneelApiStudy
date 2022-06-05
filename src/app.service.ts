@@ -11,12 +11,12 @@ export class AppService {
     let state_searched = 'PI';
     let energy_provider = 'Equatorial+PI';
     let init_date = '2021';
-    let user_name = 'Metropolitan';
+    //let user_name = 'Metropolitan';
 
     //With user name
-    let aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&q=${city_searched}&q=${state_searched}&q=${energy_provider}&q=${init_date}&q=${user_name}`));
+    //let aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&q=${city_searched}&q=${state_searched}&q=${energy_provider}&q=${init_date}&q=${user_name}`));
     //Without user name
-    //let aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&q=${city_searched}&q=${state_searched}&q=${energy_provider}&q=${init_date}`));
+    let aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&q=${city_searched}&q=${state_searched}&q=${energy_provider}&q=${init_date}`));
     return aneelAnswer.data.result.records;
   }
   
