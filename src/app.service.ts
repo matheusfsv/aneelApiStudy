@@ -10,7 +10,7 @@ import { readFile } from 'fs';
 export class AppService {
   constructor(private httpService: HttpService, private aneelData: Data) {}
 
-  async callAneel(maxValue,offset) {
+  async callAneel(numOfItems,offset) {
     // let offsetValue = 0;
     // let limitValue = 10;
     //let testBreakValue = 20;
@@ -37,7 +37,7 @@ export class AppService {
     // }
 
     try {
-      var aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&limit=${maxValue}&offset=${offset}`));
+      var aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&limit=${numOfItems}&offset=${offset}`));
       //offsetValue = offsetValue + limitValue;
     }
     catch(error)
@@ -92,7 +92,7 @@ export class AppService {
       dataObject[position].NumCoordESub,
       dataObject[position].NumCoordNSub,
       dataObject[position].rank
-    ]
+    ];
 
     return adjustedData;
   }
@@ -149,7 +149,7 @@ export class AppService {
     return dataToExcel;
   }
 
-  async saveInExcel(dataObject) {
+  async saveInExcel(dataObject, offsetValue = 0) {
     const excelFileLocal = 'src/files/DadosAneel.xlsx';
 
     const workbook = new Workbook();
@@ -158,7 +158,7 @@ export class AppService {
     const workSheet = await workbook.getWorksheet('Plan1');
 
     for(let i = 0; i<dataObject.length; i++) {
-      workSheet.getRow(i+2).values = dataObject[i];
+      workSheet.getRow(i+2 + offsetValue).values = dataObject[i];
     }
 
     await workbook.xlsx.writeFile(excelFileLocal);
@@ -166,58 +166,41 @@ export class AppService {
   }
 
   //Resolveria, em tese o problema de estourar o heap, ao salvar em blocos de 10k, precisa ainda de ajustes na função de salvamento do Excel
-  async solveMyProblem(entries) {
-    var offset = 0;
-    var maxValue = 10000;
-    var stopCondition = true;
+  async solveMyProblem(maxValuePerIteration) {
+    let offset = 0;
+    let maxValue = maxValuePerIteration;
+    let stopCondition = true;
     
     while(stopCondition) {
       let aneelDataFromApi = await this.callAneel(maxValue,offset);
       
-
       let aneelDataAdjusted = this.buildDataObject(aneelDataFromApi);
 
-      await this.saveInExcel(aneelDataAdjusted);
+      await this.saveInExcel(aneelDataAdjusted, offset);
 
-      offset = offset + maxValue;
-
-      if(offset>entries) {
+      if(offset>aneelDataAdjusted.length) {
         stopCondition = false;
-      }
+      } else {
+        offset = offset + maxValue;
+      }      
     }
 
     return;
   }
   
   async getData() {
-    //Time perforamance measurement
-    const timer1 = new Date().getTime();
-    
-    //GET data from Aneel API
-    let aneelDataFromApi = await this.callAneel(20,0);
+    // //Get data from ANEEL API
+    // let aneelDataFromApi = await this.callAneel(20,0);
 
-    const timer2 = new Date().getTime();
+    // //Adjust data to save in the Excel file
+    // let aneelDataAdjusted = this.buildDataObject(aneelDataFromApi);
 
-    console.log("Data retrieved from Aneel API in " + (timer2-timer1) + " ms");
+    // //Save the DATA in the Excel file, this part is ok
+    // await this.saveInExcel(aneelDataAdjusted);
 
-    //Adjust data to save in the Excel file
-    let aneelDataAdjusted = this.buildDataObject(aneelDataFromApi);
-
-    const timer3 = new Date().getTime();
-
-    console.log("Data adjusted to save " + (timer3-timer2) + " ms");
-
-    //Save the DATA in the Excel file, this part is ok
-    await this.saveInExcel(aneelDataAdjusted);
-
-    const timer4 = new Date().getTime();
-
-    console.log("Data saved in Excel in " + (timer4-timer3) + " ms");
-
-    const timerCompletion = new Date().getTime() - timer1;
-    const timeInSeconds = timerCompletion/1000;
+    await this.solveMyProblem(10000);
 
     //Return success
-    return "Success, code executed in " + timeInSeconds + " seconds";
+    return "Success";
   }
 }
