@@ -3,18 +3,17 @@ import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 import { Data } from "./aneelData";
 import { Workbook } from "exceljs";
-import { readFile } from 'fs';
 
 
 @Injectable()
 export class AppService {
   constructor(private httpService: HttpService, private aneelData: Data) {}
 
-  async callAneel(numOfItems,offset) {
+  async callAneel(numOfItems,offset,sigUF,city) {
     const aneelData = [];
 
     try {
-      var aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&limit=${numOfItems}&offset=${offset}`));
+      var aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&limit=${numOfItems}&offset=${offset}&filters={"SigUF":"${sigUF}"}&q={"NomMunicipio":"${city}"}`));
     }
     catch(error)
     {
@@ -138,13 +137,12 @@ export class AppService {
     return;
   }
 
-  //Resolveria, em tese o problema de estourar o heap, ao salvar em blocos de 10k, precisa ainda de ajustes na função de salvamento do Excel
   async GetAllData(maxValuePerIteration) {
     let offset = 0;
     let stopCondition = true;
     
     while(stopCondition) {
-      let aneelDataFromApi = await this.callAneel(maxValuePerIteration,offset);
+      let aneelDataFromApi = await this.callAneel(maxValuePerIteration,offset,"PI","Teresina");
       
       let aneelDataAdjusted = this.buildDataObject(aneelDataFromApi);
 
@@ -162,10 +160,8 @@ export class AppService {
   }
   
   async getData() {
-
     await this.GetAllData(10000);
 
-    //Return success
     return "Success";
   }
 }
