@@ -11,34 +11,10 @@ export class AppService {
   constructor(private httpService: HttpService, private aneelData: Data) {}
 
   async callAneel(numOfItems,offset) {
-    // let offsetValue = 0;
-    // let limitValue = 10;
-    //let testBreakValue = 20;
-    let thereAreValue = true;
     const aneelData = [];
-
-    // while(thereAreValue) {
-    //   try {
-    //     var cycleAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&limit=${maxValue}&offset=${offset}`));
-    //     offsetValue = offsetValue + limitValue;
-    //   }
-    //   catch(error)
-    //   {
-    //     thereAreValue = false;
-    //   }
-      
-    //   for(let i = 0; i<cycleAnswer.data.result.records.length; i++) {
-    //     aneelData.push(cycleAnswer.data.result.records[i]);
-    //   }
-
-    //   if(offsetValue == testBreakValue) {
-    //     thereAreValue = false;
-    //   }
-    // }
 
     try {
       var aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&limit=${numOfItems}&offset=${offset}`));
-      //offsetValue = offsetValue + limitValue;
     }
     catch(error)
     {
@@ -49,9 +25,6 @@ export class AppService {
       aneelData.push(aneelAnswer.data.result.records[i]);
     }
 
-    //let aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&limit=10000&offset=${offsetValue}`));
-    //let aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&q=${id}`));
-    //let aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7`));
     return aneelData;
   }
 
@@ -166,22 +139,22 @@ export class AppService {
   }
 
   //Resolveria, em tese o problema de estourar o heap, ao salvar em blocos de 10k, precisa ainda de ajustes na função de salvamento do Excel
-  async solveMyProblem(maxValuePerIteration) {
+  async GetAllData(maxValuePerIteration) {
     let offset = 0;
-    let maxValue = maxValuePerIteration;
     let stopCondition = true;
     
     while(stopCondition) {
-      let aneelDataFromApi = await this.callAneel(maxValue,offset);
+      let aneelDataFromApi = await this.callAneel(maxValuePerIteration,offset);
       
       let aneelDataAdjusted = this.buildDataObject(aneelDataFromApi);
 
       await this.saveInExcel(aneelDataAdjusted, offset);
 
-      if(offset>aneelDataAdjusted.length) {
+      if(maxValuePerIteration>aneelDataAdjusted.length) {
         stopCondition = false;
       } else {
-        offset = offset + maxValue;
+        console.log("A total of " + (offset + maxValuePerIteration) + " items retrieved!");
+        offset = offset + maxValuePerIteration;
       }      
     }
 
@@ -189,16 +162,8 @@ export class AppService {
   }
   
   async getData() {
-    // //Get data from ANEEL API
-    // let aneelDataFromApi = await this.callAneel(20,0);
 
-    // //Adjust data to save in the Excel file
-    // let aneelDataAdjusted = this.buildDataObject(aneelDataFromApi);
-
-    // //Save the DATA in the Excel file, this part is ok
-    // await this.saveInExcel(aneelDataAdjusted);
-
-    await this.solveMyProblem(10000);
+    await this.GetAllData(10000);
 
     //Return success
     return "Success";
