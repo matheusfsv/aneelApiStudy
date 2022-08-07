@@ -1,19 +1,27 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
-import { Data } from "./aneelData";
 import { Workbook } from "exceljs";
 
 
 @Injectable()
 export class AppService {
-  constructor(private httpService: HttpService, private aneelData: Data) {}
+  constructor(private httpService: HttpService) {}
 
   async callAneel(numOfItems,offset,sigUF,city) {
     const aneelData = [];
+    let url = 'https://dadosabertos.aneel.gov.br/api/3/action/datastore_search';
+    let aneelAnswer = undefined;
 
     try {
-      var aneelAnswer = await lastValueFrom(this.httpService.get(`https://dadosabertos.aneel.gov.br/api/3/action/datastore_search?resource_id=b1bd71e7-d0ad-4214-9053-cbd58e9564a7&limit=${numOfItems}&offset=${offset}&filters={"SigUF":"${sigUF}"}&q={"NomMunicipio":"${city}"}`));
+      aneelAnswer = await lastValueFrom(this.httpService.get(url, {
+        params: {
+          resource_id: 'b1bd71e7-d0ad-4214-9053-cbd58e9564a7',
+          limit: numOfItems,
+          offset: offset,
+          q: `{"SigUF":"${sigUF}","NomMunicipio":"${city}","DscFonteGeracao":"Radiação solar"}`
+        }
+      }));
     }
     catch(error)
     {
@@ -25,6 +33,226 @@ export class AppService {
     }
 
     return aneelData;
+  }
+
+  citiesReference() {
+    return [
+      {
+        cityName: "Teresina",
+        cityUF: "PI",
+        fileLocation: 'src/files/cities/Teresina.xlsx'
+      },
+      {
+        cityName: "Fortaleza",
+        cityUF: "CE",
+        fileLocation: 'src/files/cities/Fortaleza.xlsx'
+      },
+      {
+        cityName: "São Paulo",
+        cityUF: "SP",
+        fileLocation: 'src/files/cities/SãoPaulo.xlsx'
+      },
+      {
+        cityName: "Rio de Janeiro",
+        cityUF: "RJ",
+        fileLocation: 'src/files/cities/RioDeJaneiro.xlsx'
+      },
+      {
+        cityName: "Brasília",
+        cityUF: "DF",
+        fileLocation: 'src/files/cities/Brasília.xlsx'
+      },
+      {
+        cityName: "Salvador",
+        cityUF: "BA",
+        fileLocation: 'src/files/cities/Salvador.xlsx'
+      },
+      {
+        cityName: "Belo Horizonte",
+        cityUF: "MG",
+        fileLocation: 'src/files/cities/BeloHorizonte.xlsx'
+      },
+      {
+        cityName: "Manaus",
+        cityUF: "AM",
+        fileLocation: 'src/files/cities/Manaus.xlsx'
+      },
+      {
+        cityName: "Curitiba",
+        cityUF: "PR",
+        fileLocation: 'src/files/cities/Curitiba.xlsx'
+      },
+      {
+        cityName: "Recife",
+        cityUF: "PE",
+        fileLocation: 'src/files/cities/Recife.xlsx'
+      },
+      {
+        cityName: "Goiânia",
+        cityUF: "GO",
+        fileLocation: 'src/files/cities/Goiânia.xlsx'
+      },
+      {
+        cityName: "Belém",
+        cityUF: "PA",
+        fileLocation: 'src/files/cities/Belém.xlsx'
+      },
+      {
+        cityName: "Porto Alegre",
+        cityUF: "RS",
+        fileLocation: 'src/files/cities/PortoAlegre.xlsx'
+      },
+      {
+        cityName: "Guarulhos",
+        cityUF: "SP",
+        fileLocation: 'src/files/cities/Guarulhos.xlsx'
+      },
+      {
+        cityName: "Campinas",
+        cityUF: "SP",
+        fileLocation: 'src/files/cities/Campinas.xlsx'
+      },
+      {
+        cityName: "São Luís",
+        cityUF: "MA",
+        fileLocation: 'src/files/cities/SãoLuís.xlsx'
+      },
+      {
+        cityName: "São Gonçalo",
+        cityUF: "RJ",
+        fileLocation: 'src/files/cities/SãoGonçalo.xlsx'
+      },
+      {
+        cityName: "Maceió",
+        cityUF: "AL",
+        fileLocation: 'src/files/cities/Maceió.xlsx'
+      },
+      {
+        cityName: "Duque de Caxias",
+        cityUF: "RJ",
+        fileLocation: 'src/files/cities/DuqueDeCaxias.xlsx'
+      },
+      {
+        cityName: "Campo Grande",
+        cityUF: "MS",
+        fileLocation: 'src/files/cities/CampoGrande.xlsx'
+      },
+      {
+        cityName: "Natal",
+        cityUF: "RN",
+        fileLocation: 'src/files/cities/Natal.xlsx'
+      },
+      {
+        cityName: "João Pessoa",
+        cityUF: "PB",
+        fileLocation: 'src/files/cities/JoãoPessoa.xlsx'
+      },
+      {
+        cityName: "Ribeirão Preto",
+        cityUF: "SP",
+        fileLocation: 'src/files/cities/RibeirãoPreto.xlsx'
+      },
+      {
+        cityName: "Uberlândia",
+        cityUF: "MG",
+        fileLocation: 'src/files/cities/Uberlândia.xlsx'
+      },
+      {
+        cityName: "Aracaju",
+        cityUF: "SE",
+        fileLocation: 'src/files/cities/Aracaju.xlsx'
+      },
+      {
+        cityName: "Cuiabá",
+        cityUF: "MT",
+        fileLocation: 'src/files/cities/Cuiabá.xlsx'
+      },
+      {
+        cityName: "Porto Velho",
+        cityUF: "RO",
+        fileLocation: 'src/files/cities/PortoVelho.xlsx'
+      },
+      {
+        cityName: "Caxias do Sul",
+        cityUF: "RS",
+        fileLocation: 'src/files/cities/CaxiasDoSul.xlsx'
+      },
+      {
+        cityName: "Macapá",
+        cityUF: "AP",
+        fileLocation: 'src/files/cities/Macapá.xlsx'
+      },
+      {
+        cityName: "Florianópolis",
+        cityUF: "SC",
+        fileLocation: 'src/files/cities/Florianópolis.xlsx'
+      },
+      {
+        cityName: "Boa Vista",
+        cityUF: "RR",
+        fileLocation: 'src/files/cities/BoaVista.xlsx'
+      },
+      {
+        cityName: "Rio Branco",
+        cityUF: "AC",
+        fileLocation: 'src/files/cities/RioBranco.xlsx'
+      },
+      {
+        cityName: "Montes Claros",
+        cityUF: "MG",
+        fileLocation: 'src/files/cities/MontesClaros.xlsx'
+      },
+      {
+        cityName: "Vitória",
+        cityUF: "ES",
+        fileLocation: 'src/files/cities/Vitória.xlsx'
+      },
+      {
+        cityName: "Petrolina",
+        cityUF: "PE",
+        fileLocation: 'src/files/cities/Petrolina.xlsx'
+      },
+      {
+        cityName: "Palmas",
+        cityUF: "TO",
+        fileLocation: 'src/files/cities/Palmas.xlsx'
+      },
+      {
+        cityName: "Mossoró",
+        cityUF: "RN",
+        fileLocation: 'src/files/cities/Mossoró.xlsx'
+      },
+      {
+        cityName: "Várzea Grande",
+        cityUF: "MT",
+        fileLocation: 'src/files/cities/VárzeaGrande.xlsx'
+      },
+      {
+        cityName: "Imperatriz",
+        cityUF: "MA",
+        fileLocation: 'src/files/cities/Imperatriz.xlsx'
+      },
+      {
+        cityName: "Rondonópolis",
+        cityUF: "MT",
+        fileLocation: 'src/files/cities/Rondonópolis.xlsx'
+      },
+      {
+        cityName: "Dourados",
+        cityUF: "MS",
+        fileLocation: 'src/files/cities/Dourados.xlsx'
+      },
+      {
+        cityName: "Sinop",
+        cityUF: "MT",
+        fileLocation: 'src/files/cities/Sinop.xlsx'
+      },
+      {
+        cityName: "Sorriso",
+        cityUF: "MT",
+        fileLocation: 'src/files/cities/Sorriso.xlsx'
+      }
+    ];
   }
 
   adjustingApiData(dataObject,position) {
@@ -69,7 +297,7 @@ export class AppService {
     return adjustedData;
   }
 
-  adjustData (dataObject,position) {
+  adjustDataBackToJSON (dataObject,position) {
     const adjustedData = {
       "_id": dataObject[position][0],
       "DatGeracaoConjuntoDados":  dataObject[position][1],
@@ -121,8 +349,8 @@ export class AppService {
     return dataToExcel;
   }
 
-  async saveInExcel(dataObject, offsetValue = 0) {
-    const excelFileLocal = 'src/files/DadosAneel.xlsx';
+  async saveInExcel(dataObject, filePath, offsetValue = 0) {
+    const excelFileLocal = filePath;
 
     const workbook = new Workbook();
     await workbook.xlsx.readFile(excelFileLocal);
@@ -140,27 +368,34 @@ export class AppService {
   async GetAllData(maxValuePerIteration) {
     let offset = 0;
     let stopCondition = true;
+    let citiesData = this.citiesReference();
     
-    while(stopCondition) {
-      let aneelDataFromApi = await this.callAneel(maxValuePerIteration,offset,"PI","Teresina");
-      
-      let aneelDataAdjusted = this.buildDataObject(aneelDataFromApi);
-
-      await this.saveInExcel(aneelDataAdjusted, offset);
-
-      if(maxValuePerIteration>aneelDataAdjusted.length) {
-        stopCondition = false;
-      } else {
-        console.log("A total of " + (offset + maxValuePerIteration) + " items retrieved!");
-        offset = offset + maxValuePerIteration;
-      }      
+    for(let i = 0; i<citiesData.length; i++) {
+      while(stopCondition) {
+        let aneelDataFromApi = await this.callAneel(maxValuePerIteration,offset,citiesData[i].cityUF,citiesData[i].cityName);
+        
+        let aneelDataAdjusted = await this.buildDataObject(aneelDataFromApi);
+  
+        await this.saveInExcel(aneelDataAdjusted,citiesData[i].fileLocation, offset);
+  
+        if(maxValuePerIteration>aneelDataAdjusted.length) {
+          stopCondition = false;
+          console.log("City " + citiesData[i].cityName + " retrieved!");
+        } else {
+          console.log("City " + citiesData[i].cityName + " retrieved!");
+          offset = offset + maxValuePerIteration;
+        }      
+      }
+      offset = 0;
+      stopCondition = true;
     }
+    
 
     return;
   }
   
   async getData() {
-    await this.GetAllData(10000);
+    await this.GetAllData(30000);
 
     return "Success";
   }
