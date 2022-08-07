@@ -20,6 +20,7 @@ export class AppService {
           limit: numOfItems,
           offset: offset,
           q: `{"SigUF":"${sigUF}","NomMunicipio":"${city}","DscFonteGeracao":"Radiação solar"}`
+          //q: `{"NomMunicipio":"${city}","DscFonteGeracao":"Radiação solar"}` //API bug exception
         }
       }));
     }
@@ -373,10 +374,12 @@ export class AppService {
     for(let i = 0; i<citiesData.length; i++) {
       while(stopCondition) {
         let aneelDataFromApi = await this.callAneel(maxValuePerIteration,offset,citiesData[i].cityUF,citiesData[i].cityName);
-        
+        //let aneelDataFromApi = await this.callAneel(maxValuePerIteration,offset,"AM","Manaus"); //API bug exception
+
         let aneelDataAdjusted = await this.buildDataObject(aneelDataFromApi);
   
         await this.saveInExcel(aneelDataAdjusted,citiesData[i].fileLocation, offset);
+        //await this.saveInExcel(aneelDataAdjusted,'src/files/cities/Manaus.xlsx', offset);  //API bug exception
   
         if(maxValuePerIteration>aneelDataAdjusted.length) {
           stopCondition = false;
